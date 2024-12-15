@@ -13,6 +13,7 @@ import glob
 import pandas as pd
 from PIL import Image, ImageFile
 #Albumenations
+
 from albumentations import (
     HorizontalFlip, IAAPerspective, ShiftScaleRotate, CLAHE, RandomRotate90,
     Transpose, ShiftScaleRotate, Blur, OpticalDistortion, GridDistortion, HueSaturationValue,
@@ -22,9 +23,10 @@ from albumentations import (
 from utils import ToTensor
 
 class SIIMDataset(Dataset):
-  def __init__(self,path_file,root_dir_mask,root_dir_train,img_size,validate=False,transform=None):
+  def __init__(self,train_path_file, mask_path_file, root_dir_mask,root_dir_train,img_size,validate=False,transform=None):
 
-    self.path_file=path_file
+    self.train_path_file=train_path_file
+    self.mask_path_file=mask_path_file
     self.transform=transform
     self.root_dir_mask=root_dir_mask
     self.root_dir_train=root_dir_train
@@ -56,13 +58,15 @@ class SIIMDataset(Dataset):
 
 
   def __len__(self):
-    return len(self.path_file)
+    return len(self.train_path_file)
 
   def __getitem__(self, idx):
     if torch.is_tensor(idx):
       idx = idx.tolist()
-    image=Image.open(self.root_dir_train+self.path_file[idx],'r').convert("RGB")
-    mask=Image.open(self.root_dir_mask+self.path_file[idx],'r')
+    #Changing from filename to list item
+    
+    image=Image.open(self.root_dir_train+self.train_path_file[idx],'r').convert("RGB")
+    mask=Image.open(self.root_dir_mask+self.mask_path_file[idx],'r')
     iwidth,iheight= image.size
     mwidth,mheight= mask.size
     if (iwidth!= self.img_size or iheight!=self.img_size ):

@@ -18,13 +18,14 @@ from PIL import Image, ImageFile
 from torch.utils.tensorboard import SummaryWriter
 import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR
-from utils import plot_image,MixedLoss,iou
+from utils import plot_image,MixedLoss,iou, dice_loss
+from tqdm import tqdm
 
 
 class Trainer():
     def __init__(self,model, Dataloader , Dataloader_val, lr = 5e-4, use_cuda = True , logdir = "None" ):
         self.model = model
-        self.optimizer = optim.Adam(self.model.parameters(), lr=5e-4)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=lr)
         self.Dataloader = Dataloader
         self.scheduler = StepLR(self.optimizer, step_size=1, gamma=0.95)
         self.Dataloader_val = Dataloader_val
@@ -39,7 +40,7 @@ class Trainer():
           self.device = 'cuda'
 
     def train(self, n_epochs , main_path):
-        for epoch in range(1,n_epochs + 1):
+        for epoch in tqdm(range(1,n_epochs + 1)):
             print('Starting epoch {}...'.format(epoch) )
             #print('Time - ',datetime.now())
             self.train_epoch(epoch,n_epochs)
@@ -60,7 +61,7 @@ class Trainer():
             loss= self.criterion(outputs.float(), labels)
             loss.backward()
             self.optimizer.step()
-            train_accuracy = iou(torch.sigmoid(outputs),labels)
+            train_accuracy = dice_loss(torch.sigmoid(outputs),labels)
             
             
 
@@ -73,7 +74,7 @@ class Trainer():
               self.steps+=1
               
     def validate(self,epoch,n_epochs):
-            model.eval()
+            self.model.eval()
             loss_value = 0.0
             Accuracy = 0.0
             for i,(_,sample) in enumerate(self.Dataloader_val):
@@ -84,7 +85,7 @@ class Trainer():
               outputs = self.model(inputs.float())
               loss= self.criterion(outputs.float(), labels)
               loss_value += loss.item()
-              Accuracy += iou(torch.sigmoid(outputs),labels)
+              Accuracy += dice_loss(torch.sigmoid(outputs),labels)
               if i == 0:
                   preds = {'image': inputs.detach().cpu(),'masks': (torch.sigmoid(outputs) > 0.3).float().detach().cpu()}
                   self.writer.add_figure('Visulations ',plot_image(sample , preds ),self.steps)
