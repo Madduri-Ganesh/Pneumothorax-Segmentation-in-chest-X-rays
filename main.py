@@ -17,7 +17,6 @@ from sklearn.utils import shuffle
 import segmentation_models_pytorch as smp
 from PIL import Image, ImageFile
 from dataloader import SIIMDataset
-# import SIIMDataset from Segmentation.dataloader
 from Trainer import Trainer
 from utils import ToTensor
 
@@ -31,19 +30,11 @@ if __name__=="__main__":
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
     main_path = "/home/mmaddur1/Segmentation/"
-    # path_list=glob.glob(main_path + 'data128/train/*.png')
+    root_dir_train='~/dataset/Pneumothorax_segmentation/train_jpeg/'
+    root_dir_mask= '~/dataset/Pneumothorax_segmentation/train_jpeg/'
 
-
-    # temp_list=[]
-    # for l in path_list:
-    #     l=l.split('/')[4]
-    #     temp_list.append(l)
-    # path_list=temp_list
-    root_dir_train='/data/jliang12/jpang12/dataset/Pneumothorax_segmentation/train_jpeg/'
-    root_dir_mask= '/data/jliang12/jpang12/dataset/Pneumothorax_segmentation/train_jpeg/'
-
-    root_dir_test='/data/jliang12/jpang12/dataset/Pneumothorax_segmentation/test_jpeg/'
-    root_dir_test_mask= '/data/jliang12/jpang12/dataset/Pneumothorax_segmentation/test_jpeg/'
+    root_dir_test='~/dataset/Pneumothorax_segmentation/test_jpeg/'
+    root_dir_test_mask= '~/dataset/Pneumothorax_segmentation/test_jpeg/'
 
     with open('/home/mmaddur1/Segmentation/Pneumothorax-Segmentation-in-chest-X-rays/train/jpegs.txt', 'r') as f:
         train_path_list = f.read().split('\n')
@@ -56,24 +47,6 @@ if __name__=="__main__":
 
     with open('/home/mmaddur1/Segmentation/Pneumothorax-Segmentation-in-chest-X-rays/test/masks.txt', 'r') as f:
         test_mask_path_list = f.read().split('\n')
-
-    # new_list=[]
-    # no_list = []
-    # for i,path in enumerate(path_list):
-    #     mask=np.array(Image.open(root_dir_mask + path,'r'))
-    #     if (np.sum(mask) > 0):
-    #         new_list.append(path)
-    #     else:
-    #         no_list.append(path)
-    # new_list = shuffle(new_list , random_state = seed)
-    # no_list = shuffle(no_list , random_state = seed)
-    # val_list_mask = new_list[:475]
-    # val_list_no_mask = no_list[:1667]
-    # new_list = new_list[475:]
-    # no_list = no_list[1667:]
-    # val_list = val_list_mask + val_list_no_mask
-    # path_list = no_list + new_list + new_list + new_list
-    # path_list = shuffle(path_list , random_state = seed)
 
     
     batch_size = 16
